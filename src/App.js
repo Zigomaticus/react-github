@@ -8,9 +8,12 @@ import PostList from "./components/PostList";
 import MyButton from "./components/UI/button/MyButton";
 import Loader from "./components/UI/Loader/Loader";
 import MyModal from "./components/UI/MyModal/MyModal";
+import Pagination from "./components/UI/pagination/Pagination";
 
 import { useFetching } from "./hooks/useFetching";
 import { usePosts } from "./hooks/usePosts";
+
+import { getPageCount, getPagesArray } from "./utils/pages";
 
 import "./styles/App.scss";
 
@@ -19,13 +22,21 @@ function App() {
   const [filter, setFilter] = useState({ sort: "", query: "" });
   const [modal, setModal] = useState(false);
   const sortedAndSearchedPosts = usePosts(posts, filter.sort, filter.query);
-  const [fetchPosts, isPostLoading, postError] = useFetching(async () => {
-    const posts = await PostService.getAll();
-    setPosts(posts);
-  });
+  const [totalPages, setTotalPages] = useState(0);
+  const [limit, setLimit] = useState(10);
+  const [page, setPage] = useState(1);
+
+  const [fetchPosts, isPostLoading, postError] = useFetching(
+    async (limit, page) => {
+      const response = await PostService.getAll(limit, page);
+      setPosts(response.data);
+      const totalCount = response.headers["x-total-count"];
+      setTotalPages(getPageCount(totalCount, limit));
+    }
+  );
 
   useEffect(() => {
-    fetchPosts();
+    fetchPosts(limit, page);
   }, []);
 
   function createPost(newPost) {
@@ -37,6 +48,11 @@ function App() {
     setPosts(posts.filter((p) => p.id !== post.id));
   }
 
+  const changePage = (page) => {
+    setPage(page);
+    fetchPosts(limit, page);
+  };
+
   return (
     <div className="App">
       <MyButton style={{ marginTop: "30px" }} onClick={() => setModal(true)}>
@@ -47,6 +63,7 @@ function App() {
       </MyModal>
       <hr style={{ margin: "15px 0" }} />
       <PostFilter filter={filter} setFilter={setFilter} />
+      {postError && <h1>Error! ${postError}</h1>}
       {isPostLoading ? (
         <div
           style={{
@@ -64,6 +81,7 @@ function App() {
           title={"List of posts"}
         />
       )}
+      <Pagination page={page} changePage={changePage} totalPages={totalPages} />
     </div>
   );
 }
