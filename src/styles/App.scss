@@ -37,10 +37,15 @@
     transition: all 500ms ease-in;
   }
 
+  .post__bnt {
+    display: flex;
+  }
+
   .page__wrapper {
     margin-top: 30px;
     display: flex;
   }
+
   .page {
     padding: 10px;
     border: 1px solid teal;
