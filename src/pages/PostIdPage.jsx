@@ -9,14 +9,21 @@ import { useFetching } from "../hooks/useFetching";
 const PostIdPage = () => {
   const params = useParams();
   const [post, setPost] = useState({});
+  const [comments, setComments] = useState([]);
 
-  const [fetchPostById, isLoadin, error] = useFetching(async (id) => {
+  const [fetchPostById, isComLoadin, comError] = useFetching(async (id) => {
     const res = await PostService.getById(id);
     setPost(res.data);
   });
 
+  const [fetchComments, isLoadin, error] = useFetching(async (id) => {
+    const res = await PostService.getCommentsByPostId(id);
+    setComments(res.data);
+  });
+
   useEffect(() => {
     fetchPostById(params.id);
+    fetchComments(params.id);
   }, []);
 
   return (
@@ -27,6 +34,19 @@ const PostIdPage = () => {
       ) : (
         <div>
           {post.id}.{post.title}
+        </div>
+      )}
+      <h1>Comments</h1>
+      {isComLoadin ? (
+        <Loader />
+      ) : (
+        <div>
+          {comments.map((comment) => (
+            <div style={{ matginTop: "15px" }}>
+              <h5>{comment.email}</h5>
+              <div>{comment.body}</div>
+            </div>
+          ))}
         </div>
       )}
     </div>
