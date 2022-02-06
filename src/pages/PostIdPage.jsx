@@ -27,8 +27,8 @@ const PostIdPage = () => {
   }, []);
 
   return (
-    <div>
-      <h1>You open the page with ID = {params.id}</h1>
+    <div className="pageID">
+      <h1 className="pageID__id">You open the page with ID: {params.id}</h1>
       {isLoadin ? (
         <Loader />
       ) : (
@@ -36,7 +36,7 @@ const PostIdPage = () => {
           {post.id}.{post.title}
         </div>
       )}
-      <h1>Comments</h1>
+      <h2 className="pageID__comments">Comments</h2>
       {isComLoadin ? (
         <Loader />
       ) : (
